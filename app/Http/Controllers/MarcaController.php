@@ -54,7 +54,11 @@ class MarcaController extends Controller
      */
     public function update(Request $request, Marca $marca)
     {
-        //
+        // METODO PUT É UTILIZADO PARA ATUALIZAR TUDO
+        // METODO PATCH É UTILIZADO PARA ATUALIZAÇÕES DE PARTES
+        // TODOS OS DOIS FAZEM A MESMA COISA, A DIFEREÇA ENTRE NOMES É PARA IDENTIFICAÇÕES SEMANTICAS MELHOR
+        $marca->update($request->all());
+        return $marca;
     }
 
     /**
@@ -62,6 +66,7 @@ class MarcaController extends Controller
      */
     public function destroy(Marca $marca)
     {
-        //
+        $marca->delete();
+        return $marca;
     }
 }
