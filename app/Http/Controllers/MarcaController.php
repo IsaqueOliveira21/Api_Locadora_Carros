@@ -36,7 +36,7 @@ class MarcaController extends Controller
     public function store(Request $request)
     {
         $marca = $this->marca->create($request->all());
-        return $marca;
+        return response()->json($marca, 201);
     }
 
     /**
@@ -45,6 +45,9 @@ class MarcaController extends Controller
     public function show($id)
     {
         $marca = $this->marca->find($id);
+        if(is_null($marca)) {
+            return response()->json(['erro' => 'Item não existe'], 404);
+        }
         return $marca;
     }
     /**
@@ -64,6 +67,9 @@ class MarcaController extends Controller
         // METODO PATCH É UTILIZADO PARA ATUALIZAÇÕES DE PARTES
         // TODOS OS DOIS FAZEM A MESMA COISA, A DIFEREÇA ENTRE NOMES É PARA IDENTIFICAÇÕES SEMANTICAS MELHOR
         $marca = $this->marca->find($id);
+        if(is_null($marca)) {
+            return response()->json(['erro' => 'Item não existe'], 404);
+        }
         $marca->update($request->all());
         return $marca;
     }
@@ -74,6 +80,9 @@ class MarcaController extends Controller
     public function destroy($id)
     {
         $marca = $this->marca->find($id);
+        if(is_null($marca)) {
+            return response()->json(['erro' => 'Item não existe'], 404);
+        }
         $marca->delete();
         return $marca;
     }
