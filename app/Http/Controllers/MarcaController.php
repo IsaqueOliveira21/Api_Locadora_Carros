@@ -35,6 +35,17 @@ class MarcaController extends Controller
      */
     public function store(Request $request)
     {
+        /* ESTA VALIDAÇÃO FOI DIRETAMENTE PARA O MODEL
+        $regras = [
+            'nome' => 'required|unique:marcas',
+            'imagem' => 'required',
+        ];
+        $feedback = [
+            'required' => 'O campo :attribute é obrigatório',
+            'nome.unique' => 'O nome da marca já existe'
+        ];
+        */
+        $request->validate($this->marca->rules(), $this->marca->feedback());
         $marca = $this->marca->create($request->all());
         return response()->json($marca, 201);
     }
@@ -69,6 +80,17 @@ class MarcaController extends Controller
         $marca = $this->marca->find($id);
         if(is_null($marca)) {
             return response()->json(['erro' => 'Item não existe'], 404);
+        }
+        if($request->method() === 'PATCH') {
+            $regrasDinamicas = [];
+            foreach ($marca->rules() as $input => $regra) {
+                if(array_key_exists($input, $request->all())) {
+                    $regrasDinamicas[$input] = $regra;
+                }
+            }
+            $request->validate($regrasDinamicas);
+        } else {
+            $request->validate($marca->rules(), $marca->feedback());
         }
         $marca->update($request->all());
         return $marca;
