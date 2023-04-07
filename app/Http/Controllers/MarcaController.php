@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Marca;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class MarcaController extends Controller
 {
@@ -45,8 +46,14 @@ class MarcaController extends Controller
             'nome.unique' => 'O nome da marca já existe'
         ];
         */
+
         $request->validate($this->marca->rules(), $this->marca->feedback());
-        $marca = $this->marca->create($request->all());
+        $imagem = $request->imagem;
+        $imagem_urn = $imagem->store('imagens', 'public'); // sem o segundo parametro salva por padrao no diretorio local, se desejar salvar em um local especifico, utilize um segundo parametro
+        $marca = $this->marca->create([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+        ]);
         return response()->json($marca, 201);
     }
 
@@ -77,6 +84,7 @@ class MarcaController extends Controller
         // METODO PUT É UTILIZADO PARA ATUALIZAR TUDO
         // METODO PATCH É UTILIZADO PARA ATUALIZAÇÕES DE PARTES
         // TODOS OS DOIS FAZEM A MESMA COISA, A DIFEREÇA ENTRE NOMES É PARA IDENTIFICAÇÕES SEMANTICAS MELHOR
+        // O METODO PUT E PATCH, QUANDO TRABALHADOS EM CONJUNTO COM O FORM DATA, NAO CONSEGUEM REALIZAR O REQUEST, ENTAO ALTERAMOS PARA POST E DEFINIMOS O METHOD
         $marca = $this->marca->find($id);
         if(is_null($marca)) {
             return response()->json(['erro' => 'Item não existe'], 404);
@@ -92,7 +100,19 @@ class MarcaController extends Controller
         } else {
             $request->validate($marca->rules(), $marca->feedback());
         }
-        $marca->update($request->all());
+
+        // Remove o arquivo antigo caso haja um novo no request
+        if(!is_null($request->imagem)) {
+            Storage::disk('public')->delete($marca->imagem);
+
+        }
+
+        $imagem = $request->imagem;
+        $imagem_urn = $imagem->store('imagens', 'public');
+        $marca->update([
+            'nome' => $request->nome,
+            'imagem' => $imagem_urn,
+        ]);
         return $marca;
     }
 
@@ -105,6 +125,7 @@ class MarcaController extends Controller
         if(is_null($marca)) {
             return response()->json(['erro' => 'Item não existe'], 404);
         }
+        Storage::disk('public')->delete($marca->imagem);
         $marca->delete();
         return $marca;
     }
