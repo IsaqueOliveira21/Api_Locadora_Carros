@@ -19,7 +19,7 @@ class MarcaController extends Controller
      */
     public function index()
     {
-        $marcas = $this->marca->all();
+        $marcas = $this->marca->with('modelos')->get();
         return $marcas;
     }
 
@@ -62,7 +62,7 @@ class MarcaController extends Controller
      */
     public function show($id)
     {
-        $marca = $this->marca->find($id);
+        $marca = $this->marca->with('modelos')->find($id);
         if(is_null($marca)) {
             return response()->json(['erro' => 'Item não existe'], 404);
         }
@@ -100,19 +100,22 @@ class MarcaController extends Controller
         } else {
             $request->validate($marca->rules(), $marca->feedback());
         }
-
         // Remove o arquivo antigo caso haja um novo no request
         if(!is_null($request->imagem)) {
             Storage::disk('public')->delete($marca->imagem);
 
         }
-
         $imagem = $request->imagem;
         $imagem_urn = $imagem->store('imagens', 'public');
+        $marca->fill($request->all()); // utilizando este metodo para quando houver um PATCH, apenas sobrescrever oque houver alteração
+        $marca->imagem = $imagem_urn;
+        $marca->save();
+        /*
         $marca->update([
             'nome' => $request->nome,
             'imagem' => $imagem_urn,
         ]);
+        */
         return $marca;
     }
 
