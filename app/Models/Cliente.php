@@ -8,4 +8,16 @@ use Illuminate\Database\Eloquent\Model;
 class Cliente extends Model
 {
     use HasFactory;
+
+    protected $fillable = ['nome'];
+
+    public function rules() {
+        return [
+            'nome' => 'required',
+        ];
+    }
+
+    public function locacoes() {
+        return $this->hasMany(Locacao::class);
+    }
 }

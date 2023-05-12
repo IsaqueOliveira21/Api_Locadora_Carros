@@ -22,7 +22,7 @@ class MarcaController extends Controller
     {
         $marcaRepository = new MarcaRepository($this->marca);
 
-        $marcas = [];
+        //$marcas = [];
 
         // --------- UTILIZANDO O REPOSITORY DE MARCA --------- //
 
